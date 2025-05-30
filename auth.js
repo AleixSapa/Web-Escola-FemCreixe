@@ -2,13 +2,13 @@
 const users = {
   admin: ["Escola"],
   teachers: ["Vane", "Clara", "Marta", "Sara"],
-  students: ["Aleix", "Valeria", "Sofia", "Luke", "Leo", "Emma"],
+  students: ["Aleix", "Mat", "Valeria", "Sofia", "Luke", "Leo", "Emma"],
 };
 
 // Funció per actualitzar la llista d'usuaris segons el rol seleccionat
 function updateUserList() {
   const userType = document.getElementById("userType").value;
-  const usernameSelect = document.getElementById("username");
+  const usernameSelect = document.getElementById("  ");
   usernameSelect.innerHTML = '<option value="">Selecciona...</option>';
 
   let userList = [];
