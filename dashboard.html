@@ -61,9 +61,23 @@
             <div class="item-info">
               <h3>Desbloquejar Xat</h3>
               <p>Accedeix al xat amb els teus companys!</p>
-              <p class="price">0 punts</p>
+              <p class="price">1000 punts</p>
             </div>
             <button class="btn-primary" onclick="buyChat()" id="buyButton">
+              Comprar
+            </button>
+          </div>
+          <div class="shop-item">
+            <div class="item-info">
+              <h3>Missatges de Veu</h3>
+              <p>Envia missatges de veu al xat! (Màxim 1 minut)</p>
+              <p class="price">3000 punts</p>
+            </div>
+            <button
+              class="btn-primary"
+              onclick="buyVoiceMessages()"
+              id="buyVoiceButton"
+            >
               Comprar
             </button>
           </div>
@@ -97,6 +111,17 @@
                 <!-- Els missatges s'afegiran aquí -->
               </div>
               <div class="chat-input">
+                <div class="input-actions">
+                  <button
+                    id="recordButton"
+                    class="btn-record"
+                    onclick="toggleRecording()"
+                    style="display: none"
+                  >
+                    <span class="record-icon">🎤</span>
+                    <span class="timer" style="display: none">0:00</span>
+                  </button>
+                </div>
                 <input
                   type="text"
                   id="messageInput"
@@ -137,14 +162,22 @@
     </div>
 
     <script>
-      // Definim els usuaris per tipus
+      // Definició de variables globals
+      let userPoints = 0;
+      let mediaRecorder = null;
+      let audioChunks = [];
+      let recordingTimer = null;
+      let recordingStartTime = null;
+      let isRecording = false;
+
+      // Definició dels usuaris per tipus
       const users = {
         admin: ["Escola"],
         teachers: ["Vane", "Clara", "Marta", "Sara"],
         students: ["Aleix", "Mat", "Valeria", "Sofia", "Luke", "Leo", "Emma"],
       };
 
-      // Comprova si l'usuari està autenticat
+      // Funció per comprovar autenticació
       function checkAuth() {
         const currentUser = localStorage.getItem("currentUser");
         if (!currentUser) {
@@ -178,9 +211,12 @@
           goToChatButton.disabled = true;
           goToChatButton.classList.add("disabled");
         }
+
+        // Comprova si té els missatges de veu desbloquejats
+        checkVoiceMessagesUnlocked();
       }
 
-      // Actualitza els punts mostrats
+      // Funció per actualitzar els punts
       function updatePoints() {
         document.getElementById("userPoints").textContent = userPoints;
         document.getElementById("totalPoints").textContent = userPoints;
@@ -190,32 +226,74 @@
         );
       }
 
-      // Mostra una pestanya específica
+      // Funció per comprovar si els missatges de veu estan desbloquejats
+      function checkVoiceMessagesUnlocked() {
+        const currentUser = localStorage.getItem("currentUser");
+        const voiceUnlocked =
+          localStorage.getItem(`voice_${currentUser}`) === "true";
+
+        // Mostrar o amagar el botó de gravació
+        const recordButton = document.getElementById("recordButton");
+        if (recordButton) {
+          recordButton.style.display = voiceUnlocked ? "block" : "none";
+        }
+
+        // Actualitzar el botó de compra
+        const buyVoiceButton = document.getElementById("buyVoiceButton");
+        if (buyVoiceButton && voiceUnlocked) {
+          buyVoiceButton.disabled = true;
+          buyVoiceButton.textContent = "Comprat";
+        }
+      }
+
+      // Funció per comprar els missatges de veu
+      function buyVoiceMessages() {
+        const currentUser = localStorage.getItem("currentUser");
+        const voiceUnlocked =
+          localStorage.getItem(`voice_${currentUser}`) === "true";
+
+        if (!voiceUnlocked) {
+          if (userPoints >= 3000) {
+            userPoints -= 3000;
+            updatePoints();
+
+            localStorage.setItem(`voice_${currentUser}`, "true");
+
+            document.getElementById("buyVoiceButton").disabled = true;
+            document.getElementById("buyVoiceButton").textContent = "Comprat";
+            document.getElementById("recordButton").style.display = "block";
+
+            alert("Has desbloquejat els missatges de veu!");
+          } else {
+            alert(
+              "No tens prou punts! Necessites 3000 punts per desbloquejar els missatges de veu."
+            );
+          }
+        }
+      }
+
+      // Funció per mostrar pestanyes
       function showTab(tabName) {
-        // Amaga totes les pestanyes
         document.querySelectorAll(".tab-content").forEach((tab) => {
           tab.classList.remove("active");
         });
 
-        // Desactiva tots els botons
         document.querySelectorAll(".tab-button").forEach((button) => {
           button.classList.remove("active");
         });
 
-        // Mostra la pestanya seleccionada
         document.getElementById(tabName).classList.add("active");
-
-        // Activa el botó corresponent
         document
           .querySelector(`button[onclick="showTab('${tabName}')"]`)
           .classList.add("active");
 
         if (tabName === "chat") {
           loadGroups();
+          checkVoiceMessagesUnlocked();
         }
       }
 
-      // Compra el xat
+      // Funció per comprar el xat
       function buyChat() {
         const currentUser = localStorage.getItem("currentUser");
         const chatUnlocked =
@@ -234,7 +312,7 @@
         }
       }
 
-      // Carrega els grups de xat
+      // Funció per carregar els grups
       function loadGroups() {
         const currentUser = localStorage.getItem("currentUser");
         const groups = JSON.parse(localStorage.getItem("chatGroups") || "[]");
@@ -255,13 +333,12 @@
         });
       }
 
-      // Selecciona un grup de xat
+      // Funció per seleccionar un grup
       function selectGroup(groupId) {
         const groups = JSON.parse(localStorage.getItem("chatGroups") || "[]");
         const group = groups.find((g) => g.id === groupId);
         if (!group) return;
 
-        // Actualitzar capçalera
         document.getElementById("currentChatHeader").innerHTML = `
                 <div class="chat-header-content">
                     <h3>${group.name}</h3>
@@ -270,9 +347,9 @@
                 <button onclick="leaveGroup()" class="btn-danger">Sortir del grup</button>
             `;
 
-        // Mostrar missatges
         const chatMessages = document.getElementById("chatMessages");
         chatMessages.innerHTML = "";
+
         group.messages.forEach((msg) => {
           const messageDiv = document.createElement("div");
           messageDiv.className = `chat-message ${
@@ -280,24 +357,42 @@
               ? "sent"
               : "received"
           }`;
-          messageDiv.innerHTML = `
-                    <div class="message-sender">${msg.sender}</div>
-                    <div class="message-content">${msg.content}</div>
-                    <div class="message-time">${new Date(
-                      msg.time
-                    ).toLocaleTimeString()}</div>
-                `;
+
+          if (msg.type === "audio") {
+            messageDiv.innerHTML = `
+                        <div class="message-sender">${msg.sender}</div>
+                        <div class="audio-message">
+                            <div class="audio-controls">
+                                <audio controls>
+                                    <source src="${
+                                      msg.content
+                                    }" type="audio/wav">
+                                    El teu navegador no suporta l'element d'àudio.
+                                </audio>
+                            </div>
+                        </div>
+                        <div class="message-time">${new Date(
+                          msg.time
+                        ).toLocaleTimeString()}</div>
+                    `;
+          } else {
+            messageDiv.innerHTML = `
+                        <div class="message-sender">${msg.sender}</div>
+                        <div class="message-content">${msg.content}</div>
+                        <div class="message-time">${new Date(
+                          msg.time
+                        ).toLocaleTimeString()}</div>
+                    `;
+          }
+
           chatMessages.appendChild(messageDiv);
         });
 
-        // Guardar el grup actual
         localStorage.setItem("currentGroupId", groupId);
-
-        // Auto-scroll als últims missatges
         chatMessages.scrollTop = chatMessages.scrollHeight;
       }
 
-      // Sortir d'un grup
+      // Funció per sortir d'un grup
       function leaveGroup() {
         const currentUser = localStorage.getItem("currentUser");
         const currentGroupId = localStorage.getItem("currentGroupId");
@@ -309,23 +404,19 @@
 
         if (groupIndex === -1) return;
 
-        // Confirmar abans de sortir
         if (!confirm("Estàs segur que vols sortir d'aquest grup?")) {
           return;
         }
 
-        // Eliminar l'usuari de la llista de membres
         const group = groups[groupIndex];
         const memberIndex = group.members.indexOf(currentUser);
 
         if (memberIndex > -1) {
           group.members.splice(memberIndex, 1);
 
-          // Si no queden membres, eliminar el grup
           if (group.members.length === 0) {
             groups.splice(groupIndex, 1);
           } else {
-            // Afegir missatge de sistema informant que l'usuari ha sortit
             group.messages.push({
               sender: "Sistema",
               content: `${currentUser} ha sortit del grup`,
@@ -334,10 +425,8 @@
             groups[groupIndex] = group;
           }
 
-          // Actualitzar els grups al localStorage
           localStorage.setItem("chatGroups", JSON.stringify(groups));
 
-          // Netejar la vista del xat
           document.getElementById("currentChatHeader").innerHTML = `
                     <div class="chat-header-content">
                         <h3>Selecciona un xat</h3>
@@ -347,25 +436,125 @@
           document.getElementById("chatMessages").innerHTML = "";
           localStorage.removeItem("currentGroupId");
 
-          // Actualitzar la llista de grups
           loadGroups();
         }
       }
 
-      // Mostra el modal per crear un nou grup
+      // Funcions per la gravació d'àudio
+      async function initializeAudioRecording() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+          });
+          mediaRecorder = new MediaRecorder(stream);
+
+          mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+          };
+
+          mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+            const audioUrl = URL.createObjectURL(audioBlob);
+
+            const reader = new FileReader();
+            reader.readAsDataURL(audioBlob);
+            reader.onloadend = () => {
+              const base64Audio = reader.result;
+              sendAudioMessage(base64Audio);
+            };
+          };
+        } catch (error) {
+          console.error("Error accessing microphone:", error);
+          alert(
+            "No s'ha pogut accedir al micròfon. Si us plau, permet l'accés al micròfon."
+          );
+        }
+      }
+
+      function toggleRecording() {
+        if (!mediaRecorder) {
+          initializeAudioRecording();
+          return;
+        }
+
+        const recordButton = document.getElementById("recordButton");
+        const timer = recordButton.querySelector(".timer");
+
+        if (!isRecording) {
+          audioChunks = [];
+          mediaRecorder.start();
+          isRecording = true;
+          recordButton.classList.add("recording");
+          timer.style.display = "inline";
+          recordingStartTime = Date.now();
+
+          recordingTimer = setInterval(() => {
+            const elapsed = Math.floor(
+              (Date.now() - recordingStartTime) / 1000
+            );
+            if (elapsed >= 60) {
+              stopRecording();
+              return;
+            }
+            const seconds = elapsed % 60;
+            timer.textContent = `0:${seconds.toString().padStart(2, "0")}`;
+          }, 1000);
+
+          setTimeout(() => {
+            if (isRecording) {
+              stopRecording();
+            }
+          }, 60000);
+        } else {
+          stopRecording();
+        }
+      }
+
+      function stopRecording() {
+        if (mediaRecorder && isRecording) {
+          mediaRecorder.stop();
+          isRecording = false;
+          clearInterval(recordingTimer);
+          const recordButton = document.getElementById("recordButton");
+          recordButton.classList.remove("recording");
+          recordButton.querySelector(".timer").style.display = "none";
+          recordButton.querySelector(".timer").textContent = "0:00";
+        }
+      }
+
+      function sendAudioMessage(audioData) {
+        const currentGroupId = localStorage.getItem("currentGroupId");
+        if (!currentGroupId) return;
+
+        const groups = JSON.parse(localStorage.getItem("chatGroups") || "[]");
+        const groupIndex = groups.findIndex((g) => g.id === currentGroupId);
+
+        if (groupIndex === -1) return;
+
+        const newMessage = {
+          sender: localStorage.getItem("currentUser"),
+          content: audioData,
+          type: "audio",
+          time: new Date().toISOString(),
+        };
+
+        groups[groupIndex].messages.push(newMessage);
+        localStorage.setItem("chatGroups", JSON.stringify(groups));
+        selectGroup(currentGroupId);
+      }
+
+      // Funcions pel modal de crear grup
       function showNewGroupModal() {
         const modal = document.getElementById("newGroupModal");
         const membersList = document.getElementById("membersList");
         membersList.innerHTML = "";
 
-        // Obtenir tots els usuaris disponibles
         const availableUsers = [
           ...users.admin,
           ...users.teachers,
           ...users.students,
         ];
 
-        // Crear checkbox per cada usuari
         availableUsers.forEach((user) => {
           if (user !== localStorage.getItem("currentUser")) {
             const div = document.createElement("div");
@@ -381,13 +570,11 @@
         modal.style.display = "block";
       }
 
-      // Tanca el modal
       function closeModal() {
         document.getElementById("newGroupModal").style.display = "none";
         document.getElementById("groupName").value = "";
       }
 
-      // Crea un nou grup
       function createGroup() {
         const groupName = document.getElementById("groupName").value.trim();
         if (!groupName) {
@@ -395,12 +582,10 @@
           return;
         }
 
-        // Obtenir membres seleccionats
         const selectedMembers = Array.from(
           document.querySelectorAll("#membersList input:checked")
         ).map((checkbox) => checkbox.value);
 
-        // Afegir l'usuari actual als membres
         selectedMembers.push(localStorage.getItem("currentUser"));
 
         if (selectedMembers.length < 2) {
@@ -408,7 +593,6 @@
           return;
         }
 
-        // Crear nou grup
         const newGroup = {
           id: Date.now().toString(),
           name: groupName,
@@ -422,16 +606,12 @@
           ],
         };
 
-        // Guardar el grup
         const groups = JSON.parse(localStorage.getItem("chatGroups") || "[]");
         groups.push(newGroup);
         localStorage.setItem("chatGroups", JSON.stringify(groups));
 
-        // Tancar modal i recarregar grups
         closeModal();
         loadGroups();
-
-        // Seleccionar el nou grup automàticament
         selectGroup(newGroup.id);
       }
 
@@ -461,7 +641,7 @@
         selectGroup(currentGroupId);
       }
 
-      // Inicialització quan es carrega la pàgina
+      // Inicialització
       document.addEventListener("DOMContentLoaded", () => {
         checkAuth();
       });
