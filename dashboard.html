@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ca">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Escola Fem Creixe</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="dashboard-header">
+      <h1>Escola Fem Creixe</h1>
+      <div class="user-info">
+        <span id="userName"></span>
+        <span>Punts: <span id="userPoints">0</span></span>
+        <button onclick="window.location.href='index.html'" class="btn-primary">
+          Tancar Sessió
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <div class="nav-tabs">
+        <button onclick="showTab('home')" class="tab-button active">
+          Inici
+        </button>
+        <button onclick="showTab('shop')" class="tab-button">Botiga</button>
+        <button
+          onclick="showTab('chat')"
+          class="tab-button"
+          id="chatTab"
+          style="display: none"
+        >
+          Xat
+        </button>
+      </div>
+
+      <div class="container">
+        <!-- Pestanya Inici -->
+        <div id="home" class="tab-content active">
+          <div class="stats-container">
+            <div class="stat-card">
+              <h3>Punts Totals</h3>
+              <p id="totalPoints">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Xat</h3>
+              <button
+                onclick="showTab('chat')"
+                class="btn-primary"
+                id="goToChatButton"
+              >
+                Anar al Xat
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestanya Botiga -->
+        <div id="shop" class="tab-content">
+          <div class="shop-item">
+            <div class="item-info">
+              <h3>Desbloquejar Xat</h3>
+              <p>Accedeix al xat amb els teus companys!</p>
+              <p class="price">1000 punts</p>
+            </div>
+            <button class="btn-primary" onclick="buyChat()" id="buyButton">
+              Comprar
+            </button>
+          </div>
+        </div>
+
+        <!-- Pestanya Xat -->
+        <div id="chat" class="tab-content">
+          <div class="chat-layout">
+            <!-- Llista de grups -->
+            <div class="chat-sidebar">
+              <div class="sidebar-header">
+                <h3>Els meus xats</h3>
+                <button onclick="showNewGroupModal()" class="btn-primary">
+                  Nou Grup
+                </button>
+              </div>
+              <div id="groupsList" class="groups-list">
+                <!-- Els grups s'afegiran aquí -->
+              </div>
+            </div>
+
+            <!-- Àrea principal del xat -->
+            <div class="chat-main">
+              <div id="currentChatHeader" class="chat-header">
+                <h3>Selecciona un xat</h3>
+              </div>
+              <div id="chatMessages" class="chat-messages"></div>
+              <div class="chat-input">
+                <input
+                  type="text"
+                  id="messageInput"
+                  placeholder="Escriu un missatge..."
+                />
+                <button onclick="sendMessage()" class="btn-primary">
+                  Enviar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal per crear grup -->
+    <div id="newGroupModal" class="modal">
+      <div class="modal-content">
+        <h2>Crear Nou Grup</h2>
+        <div class="form-group">
+          <label for="groupName">Nom del grup:</label>
+          <input
+            type="text"
+            id="groupName"
+            placeholder="Escriu el nom del grup"
+          />
+        </div>
+        <div class="form-group">
+          <label>Membres:</label>
+          <div id="membersList" class="members-list">
+            <!-- La llista de membres s'afegirà aquí -->
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button onclick="createGroup()" class="btn-primary">Crear</button>
+          <button onclick="closeModal()" class="btn-secondary">
+            Cancel·lar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+  </body>
+</html>

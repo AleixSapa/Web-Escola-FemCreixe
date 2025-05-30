@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ca">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panell de Professor - Escola Fem Creixe</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="dashboard-header">
+      <h1>Escola Fem Creixe</h1>
+      <div class="user-info">
+        <span id="userName"></span>
+        <button onclick="logout()" class="btn-primary">Tancar Sessió</button>
+      </div>
+    </header>
+
+    <main class="teacher-panel">
+      <div class="student-points-manager">
+        <h2>Gestió de Punts dels Alumnes</h2>
+
+        <div class="points-form">
+          <div class="form-group">
+            <label for="studentSelect">Alumne:</label>
+            <select id="studentSelect" required>
+              <option value="">Selecciona un alumne...</option>
+              <option value="Aleix">Aleix</option>
+              <option value="Valeria">Valeria</option>
+              <option value="Sofia">Sofia</option>
+              <option value="Luke">Luke</option>
+              <option value="Leo">Leo</option>
+              <option value="Emma">Emma</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="pointsToAdd">Punts:</label>
+            <input type="number" id="pointsToAdd" required min="1" value="1" />
+          </div>
+
+          <div class="form-group">
+            <label for="pointReason">Motiu:</label>
+            <input
+              type="text"
+              id="pointReason"
+              required
+              placeholder="Per què dones els punts?"
+            />
+          </div>
+
+          <button onclick="addPoints()" class="btn-primary">Donar Punts</button>
+        </div>
+
+        <div class="students-overview">
+          <h3>Punts Actuals</h3>
+          <div id="studentsPointsList" class="points-list">
+            <!-- S'omplirà amb JavaScript -->
+          </div>
+        </div>
+
+        <div class="points-history">
+          <h3>Historial</h3>
+          <div id="pointsHistory" class="history-list">
+            <!-- S'omplirà amb JavaScript -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="teacher.js"></script>
+  </body>
+</html>

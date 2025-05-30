@@ -1,0 +1,20 @@
+<!-- Afegir abans de tancar el </body> -->
+<script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-database.js"></script>
+
+<script>
+  // Configuració de Firebase
+  const firebaseConfig = {
+    apiKey: "la_teva_api_key",
+    authDomain: "escola-femcreixe.firebaseapp.com",
+    databaseURL: "https://escola-femcreixe-default-rtdb.firebaseio.com",
+    projectId: "escola-femcreixe",
+    storageBucket: "escola-femcreixe.appspot.com",
+    messagingSenderId: "el_teu_sender_id",
+    appId: "el_teu_app_id",
+  };
+
+  // Inicialitzar Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>

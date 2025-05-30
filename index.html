@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ca">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Escola Fem Creixe</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="main-header">
+        <h1>Escola Fem Creixe</h1>
+      </header>
+
+      <main class="login-section">
+        <div class="login-box">
+          <h2>Iniciar Sessió</h2>
+          <form id="loginForm">
+            <div class="form-group">
+              <label for="userType">Selecciona el teu rol:</label>
+              <select id="userType" required onchange="updateUserList()">
+                <option value="">Selecciona...</option>
+                <option value="admin">Administrador</option>
+                <option value="teacher">Professor/a</option>
+                <option value="student">Alumne/a</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="username">Selecciona el teu nom:</label>
+              <select id="username" required>
+                <option value="">Selecciona primer el rol...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="password">Contrasenya:</label>
+              <input type="password" id="password" required />
+            </div>
+            <button type="submit" class="btn-primary">Entrar</button>
+          </form>
+        </div>
+      </main>
+
+      <footer>
+        <p>&copy; 2025 Escola Fem Creixe. Tots els drets reservats.</p>
+      </footer>
+    </div>
+    <script src="auth.js"></script>
+  </body>
+</html>
