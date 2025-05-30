@@ -3,18 +3,47 @@
 <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-database.js"></script>
 
 <script>
+  // Al principi del fitxer
+  import { initializeApp } from "firebase/app";
+  import { getDatabase, ref, push, onValue } from "firebase/database";
+
   // Configuració de Firebase
   const firebaseConfig = {
-    apiKey: "la_teva_api_key",
-    authDomain: "escola-femcreixe.firebaseapp.com",
-    databaseURL: "https://escola-femcreixe-default-rtdb.firebaseio.com",
-    projectId: "escola-femcreixe",
-    storageBucket: "escola-femcreixe.appspot.com",
-    messagingSenderId: "el_teu_sender_id",
-    appId: "el_teu_app_id",
+    // Les teves credencials de Firebase aquí
   };
 
   // Inicialitzar Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+
+  // Modificar la funció sendMessage
+  function sendMessage() {
+    const messageInput = document.getElementById("messageInput");
+    const message = messageInput.value.trim();
+    const currentGroupId = localStorage.getItem("currentGroupId");
+
+    if (!message || !currentGroupId) return;
+
+    // Enviar missatge a Firebase
+    const messagesRef = ref(database, `messages/${currentGroupId}`);
+    push(messagesRef, {
+      sender: localStorage.getItem("currentUser"),
+      content: message,
+      time: new Date().toISOString(),
+    });
+
+    messageInput.value = "";
+  }
+
+  // Escoltar nous missatges
+  function listenToMessages(groupId) {
+    const messagesRef = ref(database, `messages/${groupId}`);
+    onValue(messagesRef, (snapshot) => {
+      const messages = [];
+      snapshot.forEach((child) => {
+        messages.push(child.val());
+      });
+      displayMessages(messages);
+    });
+  }
 </script>
