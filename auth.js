@@ -8,7 +8,7 @@ const users = {
 // Funció per actualitzar la llista d'usuaris segons el rol seleccionat
 function updateUserList() {
   const userType = document.getElementById("userType").value;
-  const usernameSelect = document.getElementById("  ");
+  const usernameSelect = document.getElementById("username");
   usernameSelect.innerHTML = '<option value="">Selecciona...</option>';
 
   let userList = [];
