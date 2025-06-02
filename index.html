@@ -1,0 +1,97 @@
+<button onclick="inicarSecio()">Iniciar secio</button>
+
+<script>
+  var queEs;
+  var nom_user;
+  var Contrasenya;
+  var alubnes = ["Aleix", "Mat", "Sofia", "Luke", "Leo", "Emma"];
+  function inicarSecio() {
+    nom_user = prompt("Quin es el teu nom de ususri?");
+    Contrasenya = prompt("Quina es la teva contrasenya");
+    mirarUser("Aleix", "010914");
+    mirarUser("", "");
+    mirarUser("", "");
+    mirarUser("", "");
+    mirarUser("", "");
+    mirarUser("", "");
+    mirarUser("", "");
+    mirarUser("", "");
+    mirarUser("", "");
+    mirarUser("", "");
+    mirarUser("", "");
+    mirarUser("", "");
+    mirarUser("", "");
+  }
+  function mirarUser(nomDeUsuari, laContrasenya) {
+    if (nom_user == nomDeUsuari) {
+      if (Contrasenya == laContrasenya) {
+        distribucio();
+      }
+    }
+  }
+  function distribucio() {
+    //Alubnes
+    switch (nom_user) {
+      case "Aleix":
+        if (Contrasenya == "010914") {
+          queEs = "Alubne";
+        }
+        break;
+      case "Mat":
+        if (Contrasenya == "Futbol") {
+          queEs = "Alubne";
+        }
+        break;
+      case "Sofia":
+        if (Contrasenya == "Sofia") {
+          queEs = "Alubne";
+        }
+        break;
+      case "Luke":
+        if (Contrasenya == "Luke") {
+          queEs = "Alubne";
+        }
+        break;
+      case "Leo":
+        if (Contrasenya == "Lego") {
+          queEs = "Alubne";
+        }
+        break;
+      case "Emma":
+        if (Contrasenya == "Emma") {
+          queEs = "Alubne";
+        }
+        break;
+
+      default:
+        break;
+    }
+    //Mestres
+    switch (nom_user) {
+      case "Vanessa":
+        queEs = "Mestre";
+        break;
+      case "Clara":
+        queEs = "Mestre";
+        break;
+      case "Marta":
+        queEs = "Mestre";
+        break;
+      default:
+        break;
+    }
+    if (nom_user == "admin.EscolaFemCreixe") {
+      queEs == "Admin";
+    }
+
+    if (queEs == "Alubne") {
+      window.location.href = "alubne.html";
+    }
+    if (queEs == "Mestre") {
+      window.location.href = "mestre.html";
+    }
+    if (queEs == "Admin") {
+      window.location.href = "adminEscola.html";
+    }
+  }
+</script>
