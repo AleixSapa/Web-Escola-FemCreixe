@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ca">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Escacs amb IA</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Pantalla de selecció de dificultat -->
+      <div id="difficulty-screen">
+        <h1>Escacs amb IA</h1>
+        <h2>Selecciona el nivell de dificultat:</h2>
+        <div class="difficulty-buttons">
+          <button onclick="window.chessGame.selectDifficulty(1)">Fàcil</button>
+          <button onclick="window.chessGame.selectDifficulty(2)">Normal</button>
+          <button onclick="window.chessGame.selectDifficulty(3)">
+            Difícil
+          </button>
+          <button onclick="inici()">Tornar a inici</button>
+        </div>
+      </div>
+
+      <!-- Pantalla del joc -->
+      <div id="game-screen" style="display: none">
+        <div class="game-info">
+          <div id="turn">Torn: Blanques</div>
+          <div id="level"></div>
+          <button onclick="window.chessGame.resetGame()" class="reset-btn">
+            Nova Partida
+          </button>
+        </div>
+
+        <div id="board"></div>
+
+        <div class="captured-pieces">
+          <div id="captured-white" class="captured">
+            Peces capturades (Blanques):
+          </div>
+          <div id="captured-black" class="captured">
+            Peces capturades (Negres):
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="chess.js"></script>
+  </body>
+</html>

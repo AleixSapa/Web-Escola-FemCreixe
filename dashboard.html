@@ -11,7 +11,7 @@
       <h1>Escola Fem Creixe - Dashboard</h1>
       <div class="user-info">
         <span id="userName"></span>
-        <span>Punts: <span id="userPoints">-1000</span></span>
+        <span>Punts: <span id="userPoints">0</span></span>
         <button onclick="window.location.href='index.html'" class="btn-primary">
           Tancar Sessió
         </button>
@@ -52,6 +52,12 @@
                 Anar al Xat
               </button>
             </div>
+            <div class="stat-card" id="chessCard" style="display: none">
+              <h3>Escacs</h3>
+              <button onclick="goToChess()" class="btn-primary">
+                Anar als Escacs
+              </button>
+            </div>
           </div>
         </div>
 
@@ -61,7 +67,7 @@
             <div class="item-info">
               <h3>Desbloquejar Xat</h3>
               <p>Accedeix al xat amb els teus companys!</p>
-              <p class="price">1000 punts</p>
+              <p class="price">0 punts</p>
             </div>
             <button class="btn-primary" onclick="buyChat()" id="buyButton">
               Comprar
@@ -81,12 +87,25 @@
               Comprar
             </button>
           </div>
+          <div class="shop-item">
+            <div class="item-info">
+              <h3>Escacs</h3>
+              <p>Desbloqueja el joc d'escacs!</p>
+              <p class="price">5000 punts</p>
+            </div>
+            <button
+              class="btn-primary"
+              onclick="buyChess()"
+              id="buyChessButton"
+            >
+              Comprar
+            </button>
+          </div>
         </div>
 
         <!-- Pestanya Xat -->
         <div id="chat" class="tab-content">
           <div class="chat-layout">
-            <!-- Llista de grups -->
             <div class="chat-sidebar">
               <div class="sidebar-header">
                 <h3>Els meus xats</h3>
@@ -94,12 +113,8 @@
                   Nou Grup
                 </button>
               </div>
-              <div id="groupsList" class="groups-list">
-                <!-- Els grups s'afegiran aquí -->
-              </div>
+              <div id="groupsList" class="groups-list"></div>
             </div>
-
-            <!-- Àrea principal del xat -->
             <div class="chat-main">
               <div id="currentChatHeader" class="chat-header">
                 <div class="chat-header-content">
@@ -107,9 +122,7 @@
                   <div class="group-members"></div>
                 </div>
               </div>
-              <div id="chatMessages" class="chat-messages">
-                <!-- Els missatges s'afegiran aquí -->
-              </div>
+              <div id="chatMessages" class="chat-messages"></div>
               <div class="chat-input">
                 <div class="input-actions">
                   <button
@@ -148,9 +161,7 @@
         </div>
         <div class="form-group">
           <label>Membres:</label>
-          <div id="membersList" class="members-list">
-            <!-- Els membres s'afegiran aquí -->
-          </div>
+          <div id="membersList" class="members-list"></div>
         </div>
         <div class="modal-buttons">
           <button onclick="createGroup()" class="btn-primary">Crear</button>
@@ -162,49 +173,37 @@
     </div>
 
     <script>
-      // Definició de variables globals
       let userPoints = 0;
       let mediaRecorder = null;
       let audioChunks = [];
       let recordingTimer = null;
       let recordingStartTime = null;
       let isRecording = false;
-
-      // Definició dels usuaris per tipus
       const users = {
         admin: ["Escola"],
         teachers: ["Vane", "Clara", "Marta", "Sara"],
         students: ["Aleix", "Mat", "Valeria", "Sofia", "Luke", "Leo", "Emma"],
       };
 
-      // Funció per comprovar autenticació
       function checkAuth() {
         const currentUser = localStorage.getItem("currentUser");
         if (!currentUser) {
           window.location.href = "index.html";
           return;
         }
-
-        // Mostra el nom de l'usuari
         document.getElementById(
           "userName"
         ).textContent = `Hola, ${currentUser}!`;
-
-        // Carrega els punts de l'usuari
         userPoints = parseInt(
           localStorage.getItem(`points_${currentUser}`) || "1000"
         );
         updatePoints();
 
-        // Comprova si té el xat desbloquejat
         const chatUnlocked =
           localStorage.getItem(`chat_${currentUser}`) === "true";
-
-        // Configura la visibilitat del xat
         document.getElementById("chatTab").style.display = chatUnlocked
           ? "block"
           : "none";
-
         const goToChatButton = document.getElementById("goToChatButton");
         if (!chatUnlocked) {
           goToChatButton.textContent = "Xat Bloquejat";
@@ -212,11 +211,11 @@
           goToChatButton.classList.add("disabled");
         }
 
-        // Comprova si té els missatges de veu desbloquejats
         checkVoiceMessagesUnlocked();
+        checkChessUnlocked();
+        updateChessCard();
       }
 
-      // Funció per actualitzar els punts
       function updatePoints() {
         document.getElementById("userPoints").textContent = userPoints;
         document.getElementById("totalPoints").textContent = userPoints;
@@ -226,19 +225,13 @@
         );
       }
 
-      // Funció per comprovar si els missatges de veu estan desbloquejats
       function checkVoiceMessagesUnlocked() {
         const currentUser = localStorage.getItem("currentUser");
         const voiceUnlocked =
           localStorage.getItem(`voice_${currentUser}`) === "true";
-
-        // Mostrar o amagar el botó de gravació
         const recordButton = document.getElementById("recordButton");
-        if (recordButton) {
+        if (recordButton)
           recordButton.style.display = voiceUnlocked ? "block" : "none";
-        }
-
-        // Actualitzar el botó de compra
         const buyVoiceButton = document.getElementById("buyVoiceButton");
         if (buyVoiceButton && voiceUnlocked) {
           buyVoiceButton.disabled = true;
@@ -246,23 +239,18 @@
         }
       }
 
-      // Funció per comprar els missatges de veu
       function buyVoiceMessages() {
         const currentUser = localStorage.getItem("currentUser");
         const voiceUnlocked =
           localStorage.getItem(`voice_${currentUser}`) === "true";
-
         if (!voiceUnlocked) {
           if (userPoints >= 3000) {
             userPoints -= 3000;
             updatePoints();
-
             localStorage.setItem(`voice_${currentUser}`, "true");
-
             document.getElementById("buyVoiceButton").disabled = true;
             document.getElementById("buyVoiceButton").textContent = "Comprat";
             document.getElementById("recordButton").style.display = "block";
-
             alert("Has desbloquejat els missatges de veu!");
           } else {
             alert(
@@ -272,33 +260,75 @@
         }
       }
 
-      // Funció per mostrar pestanyes
+      function checkChessUnlocked() {
+        const currentUser = localStorage.getItem("currentUser");
+        const chessUnlocked =
+          localStorage.getItem(`chess_${currentUser}`) === "true";
+        const buyChessButton = document.getElementById("buyChessButton");
+        if (buyChessButton && chessUnlocked) {
+          buyChessButton.disabled = true;
+          buyChessButton.textContent = "Comprat";
+        }
+      }
+
+      function buyChess() {
+        const currentUser = localStorage.getItem("currentUser");
+        const chessUnlocked =
+          localStorage.getItem(`chess_${currentUser}`) === "true";
+        if (!chessUnlocked) {
+          if (userPoints >= 5000) {
+            userPoints -= 5000;
+            updatePoints();
+            localStorage.setItem(`chess_${currentUser}`, "true");
+            document.getElementById("buyChessButton").disabled = true;
+            document.getElementById("buyChessButton").textContent = "Comprat";
+            alert("Has desbloquejat el joc d'escacs!");
+            updateChessCard();
+          } else {
+            alert(
+              "No tens prou punts! Necessites 5000 punts per desbloquejar els escacs."
+            );
+          }
+        }
+      }
+
+      function updateChessCard() {
+        const currentUser = localStorage.getItem("currentUser");
+        const chessUnlocked =
+          localStorage.getItem(`chess_${currentUser}`) === "true";
+        document.getElementById("chessCard").style.display = chessUnlocked
+          ? "block"
+          : "none";
+      }
+
+      function goToChess() {
+        window.location.href = "IA escacs/index.html";
+      }
+
       function showTab(tabName) {
-        document.querySelectorAll(".tab-content").forEach((tab) => {
-          tab.classList.remove("active");
-        });
-
-        document.querySelectorAll(".tab-button").forEach((button) => {
-          button.classList.remove("active");
-        });
-
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((tab) => tab.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-button")
+          .forEach((button) => button.classList.remove("active"));
         document.getElementById(tabName).classList.add("active");
         document
           .querySelector(`button[onclick="showTab('${tabName}')"]`)
           .classList.add("active");
-
         if (tabName === "chat") {
           loadGroups();
           checkVoiceMessagesUnlocked();
         }
+        if (tabName === "shop") {
+          checkChessUnlocked();
+        }
       }
 
-      // Funció per comprar el xat
       function buyChat() {
         const currentUser = localStorage.getItem("currentUser");
         const chatUnlocked =
           localStorage.getItem(`chat_${currentUser}`) === "true";
-
         if (!chatUnlocked) {
           localStorage.setItem(`chat_${currentUser}`, "true");
           document.getElementById("chatTab").style.display = "block";
@@ -312,33 +342,26 @@
         }
       }
 
-      // Funció per carregar els grups
       function loadGroups() {
         const currentUser = localStorage.getItem("currentUser");
         const groups = JSON.parse(localStorage.getItem("chatGroups") || "[]");
         const groupsList = document.getElementById("groupsList");
         groupsList.innerHTML = "";
-
         groups.forEach((group) => {
           if (group.members.includes(currentUser)) {
             const groupDiv = document.createElement("div");
             groupDiv.className = "chat-item";
             groupDiv.onclick = () => selectGroup(group.id);
-            groupDiv.innerHTML = `
-                        <h4>${group.name}</h4>
-                        <small>${group.members.length} membres</small>
-                    `;
+            groupDiv.innerHTML = `<h4>${group.name}</h4><small>${group.members.length} membres</small>`;
             groupsList.appendChild(groupDiv);
           }
         });
       }
 
-      // Funció per seleccionar un grup
       function selectGroup(groupId) {
         const groups = JSON.parse(localStorage.getItem("chatGroups") || "[]");
         const group = groups.find((g) => g.id === groupId);
         if (!group) return;
-
         document.getElementById("currentChatHeader").innerHTML = `
                 <div class="chat-header-content">
                     <h3>${group.name}</h3>
@@ -346,10 +369,8 @@
                 </div>
                 <button onclick="leaveGroup()" class="btn-danger">Sortir del grup</button>
             `;
-
         const chatMessages = document.getElementById("chatMessages");
         chatMessages.innerHTML = "";
-
         group.messages.forEach((msg) => {
           const messageDiv = document.createElement("div");
           messageDiv.className = `chat-message ${
@@ -357,7 +378,6 @@
               ? "sent"
               : "received"
           }`;
-
           if (msg.type === "audio") {
             messageDiv.innerHTML = `
                         <div class="message-sender">${msg.sender}</div>
@@ -384,36 +404,24 @@
                         ).toLocaleTimeString()}</div>
                     `;
           }
-
           chatMessages.appendChild(messageDiv);
         });
-
         localStorage.setItem("currentGroupId", groupId);
         chatMessages.scrollTop = chatMessages.scrollHeight;
       }
 
-      // Funció per sortir d'un grup
       function leaveGroup() {
         const currentUser = localStorage.getItem("currentUser");
         const currentGroupId = localStorage.getItem("currentGroupId");
-
         if (!currentGroupId) return;
-
         const groups = JSON.parse(localStorage.getItem("chatGroups") || "[]");
         const groupIndex = groups.findIndex((g) => g.id === currentGroupId);
-
         if (groupIndex === -1) return;
-
-        if (!confirm("Estàs segur que vols sortir d'aquest grup?")) {
-          return;
-        }
-
+        if (!confirm("Estàs segur que vols sortir d'aquest grup?")) return;
         const group = groups[groupIndex];
         const memberIndex = group.members.indexOf(currentUser);
-
         if (memberIndex > -1) {
           group.members.splice(memberIndex, 1);
-
           if (group.members.length === 0) {
             groups.splice(groupIndex, 1);
           } else {
@@ -424,9 +432,7 @@
             });
             groups[groupIndex] = group;
           }
-
           localStorage.setItem("chatGroups", JSON.stringify(groups));
-
           document.getElementById("currentChatHeader").innerHTML = `
                     <div class="chat-header-content">
                         <h3>Selecciona un xat</h3>
@@ -435,27 +441,21 @@
                 `;
           document.getElementById("chatMessages").innerHTML = "";
           localStorage.removeItem("currentGroupId");
-
           loadGroups();
         }
       }
 
-      // Funcions per la gravació d'àudio
       async function initializeAudioRecording() {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({
             audio: true,
           });
           mediaRecorder = new MediaRecorder(stream);
-
           mediaRecorder.ondataavailable = (event) => {
             audioChunks.push(event.data);
           };
-
           mediaRecorder.onstop = async () => {
             const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-            const audioUrl = URL.createObjectURL(audioBlob);
-
             const reader = new FileReader();
             reader.readAsDataURL(audioBlob);
             reader.onloadend = () => {
@@ -464,7 +464,6 @@
             };
           };
         } catch (error) {
-          console.error("Error accessing microphone:", error);
           alert(
             "No s'ha pogut accedir al micròfon. Si us plau, permet l'accés al micròfon."
           );
@@ -476,10 +475,8 @@
           initializeAudioRecording();
           return;
         }
-
         const recordButton = document.getElementById("recordButton");
         const timer = recordButton.querySelector(".timer");
-
         if (!isRecording) {
           audioChunks = [];
           mediaRecorder.start();
@@ -487,7 +484,6 @@
           recordButton.classList.add("recording");
           timer.style.display = "inline";
           recordingStartTime = Date.now();
-
           recordingTimer = setInterval(() => {
             const elapsed = Math.floor(
               (Date.now() - recordingStartTime) / 1000
@@ -499,15 +495,10 @@
             const seconds = elapsed % 60;
             timer.textContent = `0:${seconds.toString().padStart(2, "0")}`;
           }, 1000);
-
           setTimeout(() => {
-            if (isRecording) {
-              stopRecording();
-            }
+            if (isRecording) stopRecording();
           }, 60000);
-        } else {
-          stopRecording();
-        }
+        } else stopRecording();
       }
 
       function stopRecording() {
@@ -525,74 +516,56 @@
       function sendAudioMessage(audioData) {
         const currentGroupId = localStorage.getItem("currentGroupId");
         if (!currentGroupId) return;
-
         const groups = JSON.parse(localStorage.getItem("chatGroups") || "[]");
         const groupIndex = groups.findIndex((g) => g.id === currentGroupId);
-
         if (groupIndex === -1) return;
-
         const newMessage = {
           sender: localStorage.getItem("currentUser"),
           content: audioData,
           type: "audio",
           time: new Date().toISOString(),
         };
-
         groups[groupIndex].messages.push(newMessage);
         localStorage.setItem("chatGroups", JSON.stringify(groups));
         selectGroup(currentGroupId);
       }
 
-      // Funcions pel modal de crear grup
       function showNewGroupModal() {
         const modal = document.getElementById("newGroupModal");
         const membersList = document.getElementById("membersList");
         membersList.innerHTML = "";
-
         const availableUsers = [
           ...users.admin,
           ...users.teachers,
           ...users.students,
         ];
-
         availableUsers.forEach((user) => {
           if (user !== localStorage.getItem("currentUser")) {
             const div = document.createElement("div");
-            div.innerHTML = `
-                        <label>
-                            <input type="checkbox" value="${user}"> ${user}
-                        </label>
-                    `;
+            div.innerHTML = `<label><input type="checkbox" value="${user}"> ${user}</label>`;
             membersList.appendChild(div);
           }
         });
-
         modal.style.display = "block";
       }
-
       function closeModal() {
         document.getElementById("newGroupModal").style.display = "none";
         document.getElementById("groupName").value = "";
       }
-
       function createGroup() {
         const groupName = document.getElementById("groupName").value.trim();
         if (!groupName) {
           alert("Si us plau, introdueix un nom pel grup");
           return;
         }
-
         const selectedMembers = Array.from(
           document.querySelectorAll("#membersList input:checked")
         ).map((checkbox) => checkbox.value);
-
         selectedMembers.push(localStorage.getItem("currentUser"));
-
         if (selectedMembers.length < 2) {
           alert("Si us plau, selecciona almenys un altre membre pel grup");
           return;
         }
-
         const newGroup = {
           id: Date.now().toString(),
           name: groupName,
@@ -605,43 +578,33 @@
             },
           ],
         };
-
         const groups = JSON.parse(localStorage.getItem("chatGroups") || "[]");
         groups.push(newGroup);
         localStorage.setItem("chatGroups", JSON.stringify(groups));
-
         closeModal();
         loadGroups();
         selectGroup(newGroup.id);
       }
 
-      // Funció per enviar missatges
       function sendMessage() {
         const messageInput = document.getElementById("messageInput");
         const message = messageInput.value.trim();
         const currentGroupId = localStorage.getItem("currentGroupId");
-
         if (!message || !currentGroupId) return;
-
         const groups = JSON.parse(localStorage.getItem("chatGroups") || "[]");
         const groupIndex = groups.findIndex((g) => g.id === currentGroupId);
-
         if (groupIndex === -1) return;
-
         const newMessage = {
           sender: localStorage.getItem("currentUser"),
           content: message,
           time: new Date().toISOString(),
         };
-
         groups[groupIndex].messages.push(newMessage);
         localStorage.setItem("chatGroups", JSON.stringify(groups));
-
         messageInput.value = "";
         selectGroup(currentGroupId);
       }
 
-      // Inicialització
       document.addEventListener("DOMContentLoaded", () => {
         checkAuth();
       });
