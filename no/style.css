@@ -477,3 +477,308 @@ body {
 }
 
 /* ... (resta del codi sense canvis) ... */
+/* 
+:root {
+  --board-size: min(80vw, 80vh);
+  --square-size: calc(var(--board-size) / 8);
+  --light-square: #f0d9b5;
+  --dark-square: #b58863;
+  --selected-square: #7b61ff;
+  --possible-move: rgba(0, 255, 0, 0.3);
+  --main-bg-color: #2f3542;
+  --text-color: #ffffff;
+  --button-primary: #4834d4;
+  --button-hover: #686de0;
+  --button-danger: #e74c3c;
+  --button-danger-hover: #c0392b;
+  --border-color: #2c3e50;
+}
+
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--main-bg-color);
+  color: var(--text-color);
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+
+#difficulty-screen {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  margin: 20px auto;
+}
+
+#difficulty-screen h1 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  color: #a29bfe;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+#difficulty-screen h2 {
+  font-size: 1.8em;
+  margin-bottom: 30px;
+  color: #dfe6e9;
+}
+
+.difficulty-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.difficulty-buttons button {
+  padding: 15px 30px;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: var(--button-primary);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.difficulty-buttons button:hover {
+  background-color: var(--button-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+#game-screen {
+  padding: 20px;
+}
+
+.game-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+#turn,
+#level {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 10px 20px;
+  border-radius: 8px;
+  min-width: 200px;
+}
+
+#board {
+  width: var(--board-size);
+  height: var(--board-size);
+  margin: 20px auto;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  border: 8px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.square {
+  width: var(--square-size);
+  height: var(--square-size);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.square.light {
+  background-color: var(--light-square);
+}
+
+.square.dark {
+  background-color: var(--dark-square);
+}
+
+.square.selected {
+  background-color: var(--selected-square);
+}
+
+.square:hover {
+  opacity: 0.9;
+}
+
+.square.possible-move::after {
+  content: "";
+  position: absolute;
+  width: 40%;
+  height: 40%;
+  background-color: var(--possible-move);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+}
+
+.piece {
+  width: 90%;
+  height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: calc(var(--square-size) * 0.85);
+  position: relative;
+  z-index: 1;
+  user-select: none;
+  transition: transform 0.2s ease;
+}
+
+.piece:hover {
+  transform: scale(1.1);
+}
+
+.captured-pieces {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  font-size: 1.2em;
+}
+
+.captured {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.reset-btn {
+  margin-top: 20px;
+  padding: 12px 25px;
+  font-size: 1.1em;
+  background-color: var(--button-danger);
+  color: var(--text-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.reset-btn:hover {
+  background-color: var(--button-danger-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+.piece-capture {
+  animation: capture 0.5s ease-out;
+}
+
+@keyframes capture {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+
+@media (min-width: 1024px) {
+  .piece {
+    font-size: calc(var(--square-size) * 0.9);
+  }
+
+  #difficulty-screen {
+    max-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --board-size: 90vw;
+  }
+
+  .piece {
+    font-size: calc(var(--square-size) * 0.8);
+  }
+
+  .difficulty-buttons button {
+    padding: 12px 20px;
+    font-size: 1.1em;
+  }
+
+  #difficulty-screen h1 {
+    font-size: 2em;
+  }
+
+  #difficulty-screen h2 {
+    font-size: 1.5em;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --board-size: 95vw;
+  }
+
+  body {
+    padding: 10px;
+  }
+
+  .piece {
+    font-size: calc(var(--square-size) * 0.75);
+  }
+
+  .difficulty-buttons button {
+    padding: 10px 15px;
+    font-size: 1em;
+    width: calc(50% - 10px);
+  }
+
+  .game-info {
+    font-size: 1.1em;
+  }
+
+  .captured {
+    font-size: 0.9em;
+  }
+}
+
+
+
+*/
